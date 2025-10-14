@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/KTCL13/AuthService/issues"
   },
-  "homepage": "https://github.com/KTCL13/AuthService#readme"
+  "homepage": "https://github.com/KTCL13/AuthService#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
