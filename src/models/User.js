@@ -20,6 +20,11 @@ const User = define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+
+    is_active_session: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: 'users',
