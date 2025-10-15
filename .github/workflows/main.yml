@@ -59,7 +59,7 @@ jobs:
 
       # 5. Prepara la base de datos de prueba ejecutando las migraciones
       - name: Database - Run Migrations
-        run: npx sequelize-cli db:migrate
+        run: npx sequelize-cli db:migrate --config src/config/config.js
 
       # 6. Ejecuta las pruebas automatizadas (Jest)
       - name: Run Automated Tests
