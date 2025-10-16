@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest, test } from '@jest/globals';
 
 jest.unstable_mockModule('../../src/services/authService.js', () => ({
   login: jest.fn(),
@@ -32,13 +32,22 @@ describe('AuthController - login', () => {
     expect(res.json).toHaveBeenCalledWith({ user: mockUser });
   });
 
-  test('debe responder con 401 si las credenciales son incorrectas', async () => {
+  test('debe responder con 401 si el usuario no es encontrado', async () => {
+    authService.login.mockRejectedValue(new Error('Usuario no encontrado'));
+
+    await authController.login(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(STATUS_CODES.UNAUTHORIZED);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Usuario no encontrado' });
+  });
+
+  test('debe responder con 401 si las contraseña son incorrectas', async () => {
     authService.login.mockRejectedValue(new Error('Credenciales incorrectas'));
 
     await authController.login(req, res);
 
     expect(res.status).toHaveBeenCalledWith(STATUS_CODES.UNAUTHORIZED);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Credenciales incorrectas' });
+    expect(res.json).toHaveBeenCalledWith({ message: 'La contraseña es incorrecta' });
   });
 
   test('debe responder con 500 si ocurre un error interno', async () => {
