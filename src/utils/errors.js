@@ -2,10 +2,10 @@
 import { STATUS_CODES } from './httpStatusCodes.js';
 
 export class AppError extends Error {
-  constructor(message, statusCode) {
+  constructor(message, statusCode, isOperational = true) {
     super(message);
     this.statusCode = statusCode;
-    this.isOperational = true;
+    this.isOperational = isOperational;
   }
 }
 
@@ -41,6 +41,6 @@ export class ConflictError extends AppError {
 
 export class InternalServerError extends AppError {
   constructor(message = 'Error interno del servidor') {
-    super(message, STATUS_CODES.INTERNAL_SERVER_ERROR);
+    super(message, STATUS_CODES.INTERNAL_SERVER_ERROR, false);
   }
 }
