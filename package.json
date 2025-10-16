@@ -27,7 +27,8 @@
   "homepage": "https://github.com/KTCL13/AuthService#readme",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
