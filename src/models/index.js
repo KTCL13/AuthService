@@ -4,6 +4,7 @@ import path from 'path';
 import Sequelize from 'sequelize';
 import process from 'process';
 import { fileURLToPath } from 'url';
+import { pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +33,7 @@ fs.readdirSync(__dirname)
   })
   .forEach((file) => {
     // Dynamic import for ESModules
-    import(path.join(__dirname, file)).then((module) => {
+    import(pathToFileURL(path.join(__dirname, file)).href).then((module) => {
       const model = module.default(sequelize, Sequelize.DataTypes);
       db[model.name] = model;
 
