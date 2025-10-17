@@ -1,6 +1,6 @@
 // src/middlewares/validateRequest.js
 import { validationResult } from 'express-validator';
-import { STATUS_CODES } from '../utils/httpStatusCodes';
+import { STATUS_CODES } from '../utils/httpStatusCodes.js';
 
 export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
