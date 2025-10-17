@@ -1,5 +1,5 @@
 // src/controllers/authController.js
-import { login as _login } from '../services/authService';
+import { login as _login } from '../services/authService.js';
 import { STATUS_CODES } from '../utils/httpStatusCodes.js';
 
 export const login = async (req, res, next) => {
