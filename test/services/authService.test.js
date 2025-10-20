@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { checkUserSessionState } from '../../src/repositories/userRepository.js';
 
 const mockFindByEmail = jest.fn();
 const mockChangeUserSesionState = jest.fn();
