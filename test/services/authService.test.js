@@ -1,8 +1,10 @@
 import { jest } from '@jest/globals';
+import { checkUserSessionState } from '../../src/repositories/userRepository.js';
 
 const mockFindByEmail = jest.fn();
 const mockChangeUserSesionState = jest.fn();
 const mockComparePasswords = jest.fn();
+const mockCheckUserSessionState = jest.fn();
 
 class NotFoundError extends Error {}
 class UnauthorizedError extends Error {}
@@ -10,6 +12,7 @@ class UnauthorizedError extends Error {}
 await jest.unstable_mockModule('../../src/repositories/userRepository.js', () => ({
   findByEmail: mockFindByEmail,
   changeUserSesionState: mockChangeUserSesionState,
+  checkUserSessionState: mockCheckUserSessionState,
 }));
 
 await jest.unstable_mockModule('../../src/utils/passwordUtils.js', () => ({
@@ -21,7 +24,7 @@ await jest.unstable_mockModule('../../src/utils/errors.js', () => ({
   UnauthorizedError,
 }));
 
-const { login } = await import('../../src/services/authService.js');
+const { login, validateSessionState } = await import('../../src/services/authService.js');
 
 describe('AuthService - login', () => {
   const email = 'test@example.com';
@@ -58,5 +61,24 @@ describe('AuthService - login', () => {
     expect(mockFindByEmail).toHaveBeenCalledWith(email);
     expect(mockComparePasswords).toHaveBeenCalledWith(password, userMock.password);
     expect(mockChangeUserSesionState).toHaveBeenCalledWith(userMock.id, true);
+  });
+
+  test('debe lanzar error si el usuario no existe', async () => {
+    mockFindByEmail.mockResolvedValue(null);
+
+    await expect(validateSessionState('notfound@example.com')).rejects.toThrow(NotFoundError);
+
+    expect(mockFindByEmail).toHaveBeenCalledWith('notfound@example.com');
+  });
+
+  test('debe devolver el estado de sesión si el usuario existe', async () => {
+    mockFindByEmail.mockResolvedValue(userMock);
+    mockCheckUserSessionState.mockResolvedValue(true);
+
+    const result = await validateSessionState('user@example.com');
+
+    expect(mockFindByEmail).toHaveBeenCalledWith('user@example.com');
+    expect(mockCheckUserSessionState).toHaveBeenCalledWith(1);
+    expect(result).toBe(true);
   });
 });
