@@ -1,5 +1,8 @@
 import db from '../../src/models/index.js';
-import { findByEmail } from '../../src/repositories/userRepository.js';
+import { findByEmail, checkUserSessionState } from '../../src/repositories/userRepository.js';
+
+const userId = 100;
+const noUserId = 9999;
 
 describe('UserRepository', () => {
   beforeAll(async () => {
@@ -9,10 +12,10 @@ describe('UserRepository', () => {
   beforeEach(async () => {
     await db.User.destroy({ truncate: true });
     await db.User.create({
-      name: 'Test User',
+      id: userId,
       email: 'test@example.com',
       password: 'password123',
-      isActive: false,
+      is_active_session: false,
     });
   });
 
@@ -38,5 +41,15 @@ describe('UserRepository', () => {
     await db.User.update({ is_active_session: true }, { where: { id: user.id } });
     const updatedUser = await findByEmail('test@example.com');
     expect(updatedUser.is_active_session).toBe(true);
+  });
+
+  it('debería verificar el estado de sesión del usuario', async () => {
+    const is_active_session = await checkUserSessionState(userId);
+    expect(is_active_session).toBe(false);
+  });
+
+  it('debería devolver null al verificar el estado de sesión de un usuario inexistente', async () => {
+    const is_active_session = await checkUserSessionState(noUserId);
+    expect(is_active_session).toBeNull();
   });
 });
