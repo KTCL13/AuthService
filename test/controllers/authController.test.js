@@ -2,6 +2,7 @@ import { jest, test, describe, beforeEach, expect } from '@jest/globals';
 
 jest.unstable_mockModule('../../src/services/authService.js', () => ({
   login: jest.fn(),
+  validateSessionState: jest.fn(),
 }));
 
 const authService = await import('../../src/services/authService.js');
@@ -67,6 +68,28 @@ describe('AuthController - login', () => {
     await authController.login(req, res, next);
 
     expect(authService.login).toHaveBeenCalledWith('test@example.com', '123456');
+    expect(next).toHaveBeenCalledWith(error);
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+  });
+
+  test('debe verificar el estado de la sesión correctamente', async () => {
+    authService.validateSessionState.mockResolvedValue(true);
+    await authController.verifySessionStatus(req, res, next);
+
+    expect(authService.validateSessionState).toHaveBeenCalledWith(req.body.email);
+    expect(res.status).toHaveBeenCalledWith(STATUS_CODES.OK);
+    expect(res.json).toHaveBeenCalledWith({ success: true, sessionActive: true });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('debe llamar a next con error si ocurre un error interno', async () => {
+    const error = new Error('DB error');
+    authService.validateSessionState.mockRejectedValue(error);
+
+    await authController.verifySessionStatus(req, res, next);
+
+    expect(authService.validateSessionState).toHaveBeenCalledWith(req.body.email);
     expect(next).toHaveBeenCalledWith(error);
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
