@@ -7,3 +7,8 @@ export const findByEmail = async (email) => {
 export const changeUserSesionState = async (userId, isActive) => {
   return await db.User.update({ is_active_session: isActive }, { where: { id: userId } });
 };
+
+export const checkUserSessionState = async (userId) => {
+  const user = await db.User.findByPk(userId);
+  return user ? user.is_active_session : null;
+};
