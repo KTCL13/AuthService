@@ -1,44 +1,62 @@
 import { jest } from '@jest/globals';
 
-jest.unstable_mockModule('../../src/repositories/userRepository.js', () => ({
-  findByEmail: jest.fn(),
+const mockFindByEmail = jest.fn();
+const mockChangeUserSesionState = jest.fn();
+const mockComparePasswords = jest.fn();
+
+class NotFoundError extends Error {}
+class UnauthorizedError extends Error {}
+
+await jest.unstable_mockModule('../../src/repositories/userRepository.js', () => ({
+  findByEmail: mockFindByEmail,
+  changeUserSesionState: mockChangeUserSesionState,
 }));
 
-const userRepository = await import('../../src/repositories/userRepository.js');
+await jest.unstable_mockModule('../../src/utils/passwordUtils.js', () => ({
+  comparePasswords: mockComparePasswords,
+}));
+
+await jest.unstable_mockModule('../../src/utils/errors.js', () => ({
+  NotFoundError,
+  UnauthorizedError,
+}));
+
 const { login } = await import('../../src/services/authService.js');
 
 describe('AuthService - login', () => {
-  afterEach(() => {
+  const email = 'test@example.com';
+  const password = '1234';
+  const userMock = { id: 1, email, password: 'hashed_password' };
+
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('debe lanzar error si el usuario no existe', async () => {
-    userRepository.findByEmail.mockResolvedValue(null);
+  test('debe lanzar NotFoundError si el usuario no existe', async () => {
+    mockFindByEmail.mockResolvedValue(null);
 
-    await expect(login('test@example.com', '1234')).rejects.toThrow('Usuario no encontrado');
+    await expect(login(email, password)).rejects.toThrow(NotFoundError);
+    expect(mockFindByEmail).toHaveBeenCalledWith(email);
   });
 
-  test('debe lanzar error si la contraseña es incorrecta', async () => {
-    userRepository.findByEmail.mockResolvedValue({
-      email: 'test@example.com',
-      password: '1234',
-    });
+  test('debe lanzar UnauthorizedError si la contraseña es incorrecta', async () => {
+    mockFindByEmail.mockResolvedValue(userMock);
+    mockComparePasswords.mockReturnValue(false);
 
-    await expect(login('test@example.com', '0000')).rejects.toThrow('Credenciales incorrectas');
+    await expect(login(email, password)).rejects.toThrow(UnauthorizedError);
+    expect(mockComparePasswords).toHaveBeenCalledWith(password, userMock.password);
   });
 
-  test('debe devolver el usuario si las credenciales son correctas', async () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      password: '1234',
-    };
+  test('debe devolver el usuario y actualizar sesión si las credenciales son correctas', async () => {
+    mockFindByEmail.mockResolvedValue(userMock);
+    mockComparePasswords.mockReturnValue(true);
+    mockChangeUserSesionState.mockResolvedValue([1]);
 
-    userRepository.findByEmail.mockResolvedValue(mockUser);
+    const result = await login(email, password);
 
-    const result = await login('test@example.com', '1234');
-
-    expect(result).toEqual(mockUser);
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
+    expect(result).toEqual(userMock);
+    expect(mockFindByEmail).toHaveBeenCalledWith(email);
+    expect(mockComparePasswords).toHaveBeenCalledWith(password, userMock.password);
+    expect(mockChangeUserSesionState).toHaveBeenCalledWith(userMock.id, true);
   });
 });

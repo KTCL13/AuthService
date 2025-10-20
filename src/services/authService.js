@@ -1,4 +1,4 @@
-import { findByEmail } from '../repositories/userRepository.js';
+import { findByEmail, changeUserSesionState } from '../repositories/userRepository.js';
 import { UnauthorizedError, NotFoundError } from '../utils/errors.js';
 import { comparePasswords } from '../utils/passwordUtils.js';
 
@@ -14,5 +14,11 @@ export const login = async (email, password) => {
     throw new UnauthorizedError('Credenciales incorrectas');
   }
 
+  await updateSessionState(user.id, true);
+
   return user;
+};
+
+const updateSessionState = async (userId, isActive) => {
+  await changeUserSesionState(userId, isActive);
 };
