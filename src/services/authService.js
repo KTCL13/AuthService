@@ -1,4 +1,3 @@
-import { check } from 'express-validator';
 import {
   findByEmail,
   changeUserSesionState,
