@@ -40,3 +40,8 @@ const getUserIdByEmail = async (email) => {
   }
   return user.id;
 };
+
+export const logout = async (email) => {
+  const userId = await getUserIdByEmail(email);
+  await updateSessionState(userId, false);
+};
