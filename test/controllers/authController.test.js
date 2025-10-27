@@ -3,6 +3,7 @@ import { jest, test, describe, beforeEach, expect } from '@jest/globals';
 jest.unstable_mockModule('../../src/services/authService.js', () => ({
   login: jest.fn(),
   validateSessionState: jest.fn(),
+  logout: jest.fn(),
 }));
 
 const authService = await import('../../src/services/authService.js');
