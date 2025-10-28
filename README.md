@@ -45,14 +45,9 @@ Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
 NODE_ENV=development
 PORT=3000
 
-# Base de datos
-DB_USER=auth_user
-DB_PASSWORD=auth_password
-DB_NAME=auth_db
-DB_HOST=localhost
-DB_PORT=5432
-
-# JWT
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgres://auth_user:auth_password@localhost:5432/auth_db
 JWT_SECRET=una_clave_super_secreta
 JWT_EXPIRES_IN=1h
 
