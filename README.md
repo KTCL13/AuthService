@@ -53,8 +53,8 @@ JWT_EXPIRES_IN=1h
 
 # Config opcional
 EMAIL_SERVICE=gmail
-EMAIL_USER=correo@gmail.com
-EMAIL_PASS=clave_o_api_key
+EMAIL_USER=admin@quejas.com
+EMAIL_PASS=a123
 ```
 
 ---
