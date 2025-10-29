@@ -4,6 +4,7 @@ const mockFindByEmail = jest.fn();
 const mockChangeUserSesionState = jest.fn();
 const mockComparePasswords = jest.fn();
 const mockCheckUserSessionState = jest.fn();
+const mockCreateUser = jest.fn();
 
 class NotFoundError extends Error {}
 class UnauthorizedError extends Error {}
@@ -12,6 +13,7 @@ await jest.unstable_mockModule('../../src/repositories/userRepository.js', () =>
   findByEmail: mockFindByEmail,
   changeUserSesionState: mockChangeUserSesionState,
   checkUserSessionState: mockCheckUserSessionState,
+  createUser: mockCreateUser,
 }));
 
 await jest.unstable_mockModule('../../src/utils/passwordUtils.js', () => ({
@@ -23,7 +25,7 @@ await jest.unstable_mockModule('../../src/utils/errors.js', () => ({
   UnauthorizedError,
 }));
 
-const { login, validateSessionState } = await import('../../src/services/authService.js');
+const { login, validateSessionState, register } = await import('../../src/services/authService.js');
 
 describe('AuthService - login', () => {
   const email = 'test@example.com';
@@ -79,5 +81,34 @@ describe('AuthService - login', () => {
     expect(mockFindByEmail).toHaveBeenCalledWith('user@example.com');
     expect(mockCheckUserSessionState).toHaveBeenCalledWith(1);
     expect(result).toBe(true);
+  });
+});
+
+describe('AuthService - register', () => {
+  const email = 'newuser@example.com';
+  const password = 'password123';
+  const newUserMock = { id: 1, email, password };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('debe registrar un nuevo usuario si el email no existe', async () => {
+    mockFindByEmail.mockResolvedValue(null);
+    mockCreateUser.mockResolvedValue(newUserMock);
+
+    const result = await register(email, password);
+
+    expect(result).toEqual(newUserMock);
+    expect(mockFindByEmail).toHaveBeenCalledWith(email);
+    expect(mockCreateUser).toHaveBeenCalledWith(email, password);
+  });
+
+  test('debe lanzar error si el usuario ya existe', async () => {
+    mockFindByEmail.mockResolvedValue(newUserMock);
+
+    await expect(register(email, password)).rejects.toThrow('El usuario ya existe');
+    expect(mockFindByEmail).toHaveBeenCalledWith(email);
+    expect(mockCreateUser).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,10 @@
 // src/controllers/authController.js
-import { login as _login, validateSessionState, logout } from '../services/authService.js';
+import {
+  login as _login,
+  validateSessionState,
+  logout,
+  register as _register,
+} from '../services/authService.js';
 import { STATUS_CODES } from '../utils/httpStatusCodes.js';
 
 export const login = async (req, res, next) => {
@@ -28,6 +33,16 @@ export const logoutController = async (req, res, next) => {
   try {
     await logout(email);
     res.status(STATUS_CODES.OK).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const register = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await _register(email, password);
+    res.status(STATUS_CODES.CREATED).json({ success: true, data: user });
   } catch (error) {
     next(error);
   }

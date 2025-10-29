@@ -2,6 +2,7 @@ import {
   findByEmail,
   changeUserSesionState,
   checkUserSessionState,
+  createUser,
 } from '../repositories/userRepository.js';
 import { UnauthorizedError, NotFoundError } from '../utils/errors.js';
 import { comparePasswords } from '../utils/passwordUtils.js';
@@ -44,4 +45,14 @@ const getUserIdByEmail = async (email) => {
 export const logout = async (email) => {
   const userId = await getUserIdByEmail(email);
   await updateSessionState(userId, false);
+};
+
+export const register = async (email, password) => {
+  const existingUser = await findByEmail(email);
+  if (existingUser) {
+    throw new Error('El usuario ya existe');
+  }
+
+  const newUser = await createUser(email, password);
+  return newUser;
 };
