@@ -12,3 +12,7 @@ export const checkUserSessionState = async (userId) => {
   const user = await db.User.findByPk(userId);
   return user ? user.is_active_session : null;
 };
+
+export const createUser = async (email, password) => {
+  return await db.User.create({ email, password });
+};

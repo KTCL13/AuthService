@@ -1,8 +1,17 @@
 // src/routes/authRouter.js
 import { Router } from 'express';
-import { loginValidator, sessionStatusValidator } from '../utils/authValidator.js';
+import {
+  loginValidator,
+  sessionStatusValidator,
+  registerValidator,
+} from '../utils/authValidator.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
-import { login, verifySessionStatus, logoutController } from '../controllers/authController.js';
+import {
+  login,
+  verifySessionStatus,
+  logoutController,
+  register,
+} from '../controllers/authController.js';
 
 const router = Router();
 
@@ -12,6 +21,54 @@ const router = Router();
  *   name: Auth
  *   description: Endpoints de autenticación y control de sesión
  */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Registrar un nuevo usuario
+ *     tags: [Auth]
+ *     description: Crea un nuevo usuario en el sistema con email y contraseña.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: nuevo@example.com
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       201:
+ *         description: Usuario registrado exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     email:
+ *                       type: string
+ *                       example: nuevo@example.com
+ *       400:
+ *         description: Datos inválidos o usuario ya existe.
+ */
+router.post('/register', registerValidator, validateRequest, register);
 
 /**
  * @swagger

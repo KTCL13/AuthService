@@ -4,6 +4,7 @@ jest.unstable_mockModule('../../src/services/authService.js', () => ({
   login: jest.fn(),
   validateSessionState: jest.fn(),
   logout: jest.fn(),
+  register: jest.fn(),
 }));
 
 const authService = await import('../../src/services/authService.js');
@@ -91,6 +92,58 @@ describe('AuthController - login', () => {
     await authController.verifySessionStatus(req, res, next);
 
     expect(authService.validateSessionState).toHaveBeenCalledWith(req.body.email);
+    expect(next).toHaveBeenCalledWith(error);
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+  });
+});
+
+describe('AuthController - register', () => {
+  let req;
+  let res;
+  let next;
+
+  beforeEach(() => {
+    req = { body: { email: 'newuser@example.com', password: 'password123' } };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  test('debe responder con 201 y el usuario cuando el registro es exitoso', async () => {
+    const mockUser = { id: 1, email: 'newuser@example.com' };
+    authService.register.mockResolvedValue(mockUser);
+
+    await authController.register(req, res, next);
+
+    expect(authService.register).toHaveBeenCalledWith('newuser@example.com', 'password123');
+    expect(res.status).toHaveBeenCalledWith(STATUS_CODES.CREATED);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: mockUser });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('debe llamar a next con error si el usuario ya existe', async () => {
+    const error = new Error('El usuario ya existe');
+    authService.register.mockRejectedValue(error);
+
+    await authController.register(req, res, next);
+
+    expect(authService.register).toHaveBeenCalledWith('newuser@example.com', 'password123');
+    expect(next).toHaveBeenCalledWith(error);
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+  });
+
+  test('debe llamar a next con error si ocurre un error interno', async () => {
+    const error = new Error('DB error');
+    authService.register.mockRejectedValue(error);
+
+    await authController.register(req, res, next);
+
+    expect(authService.register).toHaveBeenCalledWith('newuser@example.com', 'password123');
     expect(next).toHaveBeenCalledWith(error);
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
