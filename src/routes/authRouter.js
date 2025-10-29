@@ -28,7 +28,7 @@ const router = Router();
  *   post:
  *     summary: Registrar un nuevo usuario
  *     tags: [Auth]
- *     description: Crea un nuevo usuario en el sistema con email y contraseña.
+ *     description: Crea un nuevo usuario en el sistema con su correo y contraseña.
  *     requestBody:
  *       required: true
  *       content:
@@ -76,7 +76,7 @@ router.post('/register', registerValidator, validateRequest, register);
  *   post:
  *     summary: Iniciar sesión de usuario
  *     tags: [Auth]
- *     description: Verifica las credenciales del usuario y devuelve un token JWT si son válidas.
+ *     description: Verifica las credenciales del usuario y permite acceder al sistema.
  *     requestBody:
  *       required: true
  *       content:
@@ -89,7 +89,7 @@ router.post('/register', registerValidator, validateRequest, register);
  *             properties:
  *               email:
  *                 type: string
- *                 example: oscar@example.com
+ *                 example: nuevo@example.com
  *               password:
  *                 type: string
  *                 example: 123456
@@ -104,38 +104,40 @@ router.post('/register', registerValidator, validateRequest, register);
  *                 message:
  *                   type: string
  *                   example: "Inicio de sesión exitoso"
- *                 token:
- *                   type: string
- *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *       400:
- *         description: Datos inválidos o incompletos.
+ *                 usuario:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 2
+ *                     email:
+ *                       type: string
+ *                       example: nuevo@example.com
  *       401:
  *         description: Credenciales incorrectas.
+ *       400:
+ *         description: Datos incompletos o inválidos.
  */
 router.post('/login', loginValidator, validateRequest, login);
 
 /**
  * @swagger
  * /auth/session-status:
- *   post:
+ *   get:
  *     summary: Verificar estado de sesión
  *     tags: [Auth]
- *     description: Valida si el token JWT del usuario sigue siendo válido o ha expirado.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - token
- *             properties:
- *               token:
- *                 type: string
- *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     description: Retorna un estado simulado de sesión activa o inactiva.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: nuevo@example.com
+ *         required: true
+ *         description: Correo electrónico del usuario para verificar su sesión.
  *     responses:
  *       200:
- *         description: Sesión activa o válida.
+ *         description: Estado de sesión del usuario.
  *         content:
  *           application/json:
  *             schema:
@@ -146,11 +148,9 @@ router.post('/login', loginValidator, validateRequest, login);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Sesión válida"
- *       401:
- *         description: Token inválido o expirado.
+ *                   example: "Sesión activa para nuevo@example.com"
  */
-router.post('/session-status', sessionStatusValidator, validateRequest, verifySessionStatus);
+router.get('/session-status', sessionStatusValidator, validateRequest, verifySessionStatus);
 
 /**
  * @swagger
@@ -158,19 +158,15 @@ router.post('/session-status', sessionStatusValidator, validateRequest, verifySe
  *   post:
  *     summary: Cerrar sesión del usuario
  *     tags: [Auth]
- *     description: Invalida el token actual o finaliza la sesión activa del usuario.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - token
- *             properties:
- *               token:
- *                 type: string
- *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     description: Simula el cierre de sesión del usuario usando su correo electrónico.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: nuevo@example.com
+ *         required: true
+ *         description: Correo electrónico del usuario que desea cerrar sesión.
  *     responses:
  *       200:
  *         description: Sesión cerrada correctamente.
@@ -181,9 +177,7 @@ router.post('/session-status', sessionStatusValidator, validateRequest, verifySe
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Sesión cerrada correctamente"
- *       401:
- *         description: Token inválido o sesión no encontrada.
+ *                   example: "Sesión cerrada correctamente para nuevo@example.com"
  */
 router.post('/logout', sessionStatusValidator, validateRequest, logoutController);
 

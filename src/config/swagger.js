@@ -8,18 +8,12 @@ const options = {
     info: {
       title: 'AuthService API',
       version: '1.0.0',
-      description: 'Documentación del microservicio de autenticación con JWT y Sequelize.',
+      description: 'Documentación del microservicio de autenticación',
       contact: {
-        name: 'Oscar Iván Rojas Cuesta',
-        email: 'rojasoscar752@gmail.com',
+        name: 'QuejasEntidadesBOy',
+        email: 'quejas@admin.com',
       },
     },
-    servers: [
-      {
-        url: 'http://localhost:3000/api',
-        description: 'Servidor local',
-      },
-    ],
     components: {
       securitySchemes: {
         bearerAuth: {
